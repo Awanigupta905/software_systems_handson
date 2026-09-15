@@ -1,0 +1,205 @@
+# Problem 2
+
+Write a simple program to execute in an infinite loop at the background. Go to `/proc` directory and identify all the process-related information in the corresponding proc directory.
+
+## C Program
+
+The following program runs continuously in an infinite loop.
+
+```c
+#include <stdio.h>
+#include <unistd.h>
+
+int main() {
+    while (1) {
+        printf("Process is running... PID = %d\n", getpid());
+        sleep(5);
+    }
+
+    return 0;
+}
+```
+
+Save the program as `infinite.c`.
+
+## Compile the Program
+
+```bash
+gcc infinite.c -o infinite
+```
+
+## Execute the Program in Background
+
+Run:
+
+```bash
+./infinite &
+```
+
+The `&` symbol makes the program execute in the background.
+
+The terminal will display something similar to:
+
+```text
+[1] 12345
+```
+
+Here, `12345` is the Process ID (PID).
+
+We can also find the PID using:
+
+```bash
+pidof infinite
+```
+
+For example:
+
+```text
+12345
+```
+
+## Go to the `/proc` Directory
+
+```bash
+cd /proc
+```
+
+Every running process has a directory in `/proc` whose name is its PID.
+
+For example:
+
+```text
+/proc/12345
+```
+
+Therefore, go to the process directory:
+
+```bash
+cd /proc/12345
+```
+
+Replace `12345` with the actual PID of the program.
+
+## Process-Related Information
+
+List the contents:
+
+```bash
+ls -l /proc/12345
+```
+
+Important files and directories include:
+
+| File/Directory | Information                                  |
+| -------------- | -------------------------------------------- |
+| `cmdline`      | Command line used to start the process       |
+| `comm`         | Process name                                 |
+| `status`       | Detailed process status and information      |
+| `stat`         | Process statistics                           |
+| `statm`        | Memory usage information                     |
+| `maps`         | Memory mappings of the process               |
+| `fd/`          | File descriptors opened by the process       |
+| `cwd`          | Current working directory                    |
+| `exe`          | Executable file being used                   |
+| `root`         | Root directory of the process                |
+| `environ`      | Environment variables                        |
+| `io`           | Input/output statistics                      |
+| `limits`       | Resource limits                              |
+| `mounts`       | Filesystems mounted for the process          |
+| `sched`        | Scheduling information                       |
+| `stack`        | Kernel stack information                     |
+| `status`       | Process state, PID, PPID, memory usage, etc. |
+
+### View Process Name
+
+```bash
+cat /proc/12345/comm
+```
+
+### View Command Line
+
+```bash
+cat /proc/12345/cmdline
+```
+
+### View Detailed Process Information
+
+```bash
+cat /proc/12345/status
+```
+
+This gives information such as:
+
+* Process name
+* Process state
+* PID
+* Parent PID
+* Number of threads
+* Virtual memory usage
+* Resident memory usage
+* User and group IDs
+
+### View Process Statistics
+
+```bash
+cat /proc/12345/stat
+```
+
+### View Memory Information
+
+```bash
+cat /proc/12345/statm
+```
+
+### View Open File Descriptors
+
+```bash
+ls -l /proc/12345/fd
+```
+
+### View Executable
+
+```bash
+ls -l /proc/12345/exe
+```
+
+### View Current Working Directory
+
+```bash
+ls -l /proc/12345/cwd
+```
+
+### View Memory Mappings
+
+```bash
+cat /proc/12345/maps
+```
+
+### View Resource Limits
+
+```bash
+cat /proc/12345/limits
+```
+
+## Stop the Background Process
+
+After completing the experiment, terminate the process using:
+
+```bash
+kill 12345
+```
+
+Replace `12345` with the actual PID.
+
+Verify that it has stopped:
+
+```bash
+ps -p 12345
+```
+
+If there is no output, the process has been terminated.
+
+## Conclusion
+
+The `/proc` filesystem is a virtual filesystem in Linux that provides information about running processes and system resources. Each running process has a directory named after its PID, such as `/proc/12345`. Files such as `status`, `stat`, `cmdline`, `maps`, `fd`, and `io` provide different types of information about the process.
+
