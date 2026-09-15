@@ -1,0 +1,102 @@
+# Problem 4
+
+Write a program to open an existing file with read-write mode. Try the `O_EXCL` flag also.
+
+## Program
+
+```c
+#include <stdio.h>
+#include <fcntl.h>
+#include <unistd.h>
+
+int main() {
+    int fd;
+
+    // Open an existing file in read-write mode
+    fd = open("existing.txt", O_RDWR);
+
+    if (fd == -1) {
+        perror("open");
+        return 1;
+    }
+
+    printf("File opened successfully in read-write mode.\n");
+    printf("File Descriptor: %d\n", fd);
+
+    close(fd);
+
+    // Try O_CREAT | O_EXCL
+    fd = open("existing.txt", O_RDWR | O_CREAT | O_EXCL, 0644);
+
+    if (fd == -1) {
+        perror("open with O_EXCL");
+    } else {
+        printf("File created successfully using O_EXCL.\n");
+        close(fd);
+    }
+
+    return 0;
+}
+```
+
+## Explanation
+
+The following statement opens an existing file in read-write mode:
+
+```c
+fd = open("existing.txt", O_RDWR);
+```
+
+`O_RDWR` means that the file is opened for both reading and writing.
+
+The `open()` system call returns a file descriptor. If it fails, it returns `-1`.
+
+The following statement demonstrates `O_EXCL`:
+
+```c
+fd = open("existing.txt", O_RDWR | O_CREAT | O_EXCL, 0644);
+```
+
+Here:
+
+* `O_RDWR` → Open the file for reading and writing.
+* `O_CREAT` → Create the file if it does not exist.
+* `O_EXCL` → Fail if the file already exists.
+* `0644` → File permissions when a new file is created.
+
+Since `existing.txt` already exists, the second `open()` call will fail when `O_EXCL` is used.
+
+## Compilation
+
+```bash
+gcc problem4.c -o problem4
+```
+
+## Execution
+
+First create the existing file:
+
+```bash
+touch existing.txt
+```
+
+Run the program:
+
+```bash
+./problem4
+```
+
+Expected output will be similar to:
+
+```text
+File opened successfully in read-write mode.
+File Descriptor: 3
+open with O_EXCL: File exists
+```
+
+This demonstrates that `O_EXCL` prevents `open()` from successfully creating/opening the file when the file already exists.
+
+## Conclusion
+
+The `open()` system call can open a file in different modes using flags. `O_RDWR` opens a file for both reading and writing, while `O_CREAT | O_EXCL` ensures that a file is created only when it does not already exist.
+
