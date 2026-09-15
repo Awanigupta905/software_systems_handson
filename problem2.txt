@@ -1,0 +1,165 @@
+# Problem 2
+
+Write a simple program to execute in an infinite loop at the background. Go to `/proc` directory and identify all the process-related information in the corresponding proc directory.
+
+## Program
+
+The program runs continuously in an infinite loop and prints its Process ID (PID).
+
+
+#include <stdio.h>
+#include <unistd.h>
+
+int main() {
+
+    while (1) {
+        printf("Process is running. PID = %d\n", getpid());
+        sleep(5);
+    }
+
+    return 0;
+}
+
+## Compile the Program
+bash
+gcc problem2.c -o problem2
+
+
+## Run the Program in Background
+
+```bash
+./problem2 &
+```
+
+The terminal will display a PID, for example:
+
+```text
+[1] 12345
+```
+
+Here, `12345` is the PID of the process.
+
+The PID can also be found using:
+
+```bash
+pidof problem2
+```
+
+## Go to `/proc`
+
+```bash
+cd /proc
+```
+
+Every running process has a directory named after its PID.
+
+For example:
+
+```bash
+cd /proc/12345
+```
+
+Replace `12345` with the actual PID.
+
+## Process Information
+
+List the process directory:
+
+```bash
+ls -l /proc/12345
+```
+
+Important process-related files and directories are:
+
+| File/Directory | Information                       |
+| -------------- | --------------------------------- |
+| `cmdline`      | Command used to start the process |
+| `comm`         | Process name                      |
+| `status`       | Detailed process information      |
+| `stat`         | Process statistics                |
+| `statm`        | Memory usage                      |
+| `maps`         | Memory mappings                   |
+| `fd/`          | Open file descriptors             |
+| `cwd`          | Current working directory         |
+| `exe`          | Executable file                   |
+| `root`         | Root directory                    |
+| `environ`      | Environment variables             |
+| `io`           | Input/output statistics           |
+| `limits`       | Resource limits                   |
+| `sched`        | Scheduling information            |
+
+### View Process Name
+
+```bash
+cat /proc/12345/comm
+```
+
+### View Detailed Process Information
+
+```bash
+cat /proc/12345/status
+```
+
+### View Command Line
+
+```bash
+cat /proc/12345/cmdline
+```
+
+### View Process Statistics
+
+```bash
+cat /proc/12345/stat
+```
+
+### View Memory Information
+
+```bash
+cat /proc/12345/statm
+```
+
+### View Open File Descriptors
+
+```bash
+ls -l /proc/12345/fd
+```
+
+### View Executable
+
+```bash
+ls -l /proc/12345/exe
+```
+
+### View Current Working Directory
+
+```bash
+ls -l /proc/12345/cwd
+```
+
+### View Memory Mappings
+
+```bash
+cat /proc/12345/maps
+```
+
+### View Resource Limits
+
+```bash
+cat /proc/12345/limits
+```
+
+## Stop the Background Process
+
+After completing the experiment:
+
+```bash
+kill 12345
+```
+
+Replace `12345` with the actual PID.
+
+## Conclusion
+
+The `/proc` filesystem is a virtual filesystem in Linux that provides information about running processes. Each running process has a directory named after its PID. Files such as `status`, `stat`, `cmdline`, `maps`, `fd`, and `io` provide different types of process information.
+
+
