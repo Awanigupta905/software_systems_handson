@@ -1,0 +1,210 @@
+PROBLEM 1
+
+Create the following types of files using:
+(i) Shell command
+(ii) System call / Library function
+
+---
+
+## (a) SOFT LINK (SYMBOLIC LINK)
+
+A soft link is a file that contains the path of another file.
+
+1. Using Shell Command:
+
+First create a source file:
+
+```
+touch original.txt
+```
+
+Create a soft link:
+
+```
+ln -s original.txt softlink.txt
+```
+
+Verify the soft link:
+
+```
+ls -l softlink.txt
+```
+
+Expected output will be similar to:
+
+```
+softlink.txt -> original.txt
+```
+
+2. Using System Call:
+
+The system call used to create a soft link is symlink().
+
+Program:
+
+```
+#include <stdio.h>
+#include <unistd.h>
+
+int main()
+{
+    if (symlink("original.txt", "softlink_sys.txt") == -1)
+    {
+        perror("symlink");
+        return 1;
+    }
+
+    printf("Soft link created successfully.\n");
+
+    return 0;
+}
+```
+
+Compile and execute:
+
+```
+gcc softlink.c -o softlink
+./softlink
+```
+
+Verify:
+
+```
+ls -l softlink_sys.txt
+```
+
+---
+
+## (b) HARD LINK
+
+A hard link is another name for the same file. Both the original
+file and the hard link point to the same inode.
+
+1. Using Shell Command:
+
+Create a hard link:
+
+```
+ln original.txt hardlink.txt
+```
+
+Verify:
+
+```
+ls -li original.txt hardlink.txt
+```
+
+Both files will have the same inode number.
+
+2. Using System Call:
+
+The system call used to create a hard link is link().
+
+Program:
+
+```
+#include <stdio.h>
+#include <unistd.h>
+
+int main()
+{
+    if (link("original.txt", "hardlink_sys.txt") == -1)
+    {
+        perror("link");
+        return 1;
+    }
+
+    printf("Hard link created successfully.\n");
+
+    return 0;
+}
+```
+
+Compile and execute:
+
+```
+gcc hardlink.c -o hardlink
+./hardlink
+```
+
+Verify:
+
+```
+ls -li original.txt hardlink_sys.txt
+```
+
+Both files should have the same inode number.
+
+---
+
+## (c) FIFO
+
+FIFO stands for First In First Out. It is a special file used
+for communication between processes.
+
+1. Using Shell Command:
+
+Create a FIFO using mkfifo:
+
+```
+mkfifo myfifo
+```
+
+Verify:
+
+```
+ls -l myfifo
+```
+
+The output will start with 'p', which indicates that the file
+is a FIFO.
+
+2. Using Library Function:
+
+The library function used to create a FIFO is mkfifo().
+
+Program:
+
+```
+#include <stdio.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+
+int main()
+{
+    if (mkfifo("myfifo_sys", 0666) == -1)
+    {
+        perror("mkfifo");
+        return 1;
+    }
+
+    printf("FIFO created successfully.\n");
+
+    return 0;
+}
+```
+
+Compile and execute:
+
+```
+gcc fifo.c -o fifo
+./fifo
+```
+
+Verify:
+
+```
+ls -l myfifo_sys
+```
+
+---
+
+## SUMMARY
+
+File Type       Shell Command                  System Call / Function
+
+Soft Link       ln -s original.txt softlink.txt    symlink()
+
+Hard Link       ln original.txt hardlink.txt       link()
+
+FIFO            mkfifo myfifo                     mkfifo()
