@@ -1,0 +1,199 @@
+**Problem 12: Find the Opening Mode of a File Using fcntl()**
+
+### Aim
+
+Write a program to find out the opening mode of a file using `fcntl()`.
+
+### Concept
+
+The `fcntl()` system call is used to perform various operations on file descriptors.
+
+To find the status flags of an already-open file, we use:
+
+```c
+fcntl(fd, F_GETFL);
+```
+
+`F_GETFL` returns the file status flags associated with the file descriptor.
+
+The access mode can then be determined using:
+
+```c
+flags & O_ACCMODE
+```
+
+### Opening Modes
+
+| Flag       | Meaning        |
+| ---------- | -------------- |
+| `O_RDONLY` | Read only      |
+| `O_WRONLY` | Write only     |
+| `O_RDWR`   | Read and write |
+
+`O_ACCMODE` is used to extract the access mode from the flags returned by `fcntl()`.
+
+### Program
+
+The program is stored in `problem12.c`.
+
+```c
+#include <stdio.h>
+#include <fcntl.h>
+#include <unistd.h>
+
+int main() {
+    int fd;
+    int flags;
+
+    // Open the file in read-write mode
+    fd = open("file12.txt", O_RDWR | O_CREAT, 0644);
+
+    if (fd == -1) {
+        perror("open");
+        return 1;
+    }
+
+    // Get the file status flags
+    flags = fcntl(fd, F_GETFL);
+
+    if (flags == -1) {
+        perror("fcntl");
+        close(fd);
+        return 1;
+    }
+
+    // Check the opening mode
+    if ((flags & O_ACCMODE) == O_RDONLY) {
+        printf("File is opened in READ ONLY mode.\n");
+    }
+    else if ((flags & O_ACCMODE) == O_WRONLY) {
+        printf("File is opened in WRITE ONLY mode.\n");
+    }
+    else if ((flags & O_ACCMODE) == O_RDWR) {
+        printf("File is opened in READ-WRITE mode.\n");
+    }
+
+    close(fd);
+
+    return 0;
+}
+```
+
+### Explanation
+
+1. `open()` opens `file12.txt` in read-write mode.
+
+```c
+fd = open("file12.txt", O_RDWR | O_CREAT, 0644);
+```
+
+2. `fcntl()` with `F_GETFL` obtains the file status flags.
+
+```c
+flags = fcntl(fd, F_GETFL);
+```
+
+3. `O_ACCMODE` extracts the access mode from the returned flags.
+
+```c
+flags & O_ACCMODE
+```
+
+4. The result is compared with `O_RDONLY`, `O_WRONLY`, and `O_RDWR`.
+
+5. Since the file was opened using `O_RDWR`, the program displays:
+
+```text
+File is opened in READ-WRITE mode.
+```
+
+6. Finally, `close(fd)` closes the file descriptor.
+
+### Compilation
+
+Compile using:
+
+```bash
+gcc problem12.c -o problem12
+```
+
+### Execution
+
+```bash
+./problem12
+```
+
+### Expected Output
+
+```text
+File is opened in READ-WRITE mode.
+```
+
+### Try Other Modes
+
+To test **read-only**, change:
+
+```c
+O_RDWR | O_CREAT
+```
+
+to:
+
+```c
+O_RDONLY
+```
+
+To test **write-only**, use:
+
+```c
+O_WRONLY | O_CREAT
+```
+
+The program should then report the corresponding opening mode.
+
+### Cleanup
+
+After testing:
+
+```bash
+rm -f problem12 file12.txt
+```
+
+### Git Commands
+
+Add both files:
+
+```bash
+git add problem12.c problem12.txt
+```
+
+Check status:
+
+```bash
+git status
+```
+
+Commit:
+
+```bash
+git commit -m "Add program to find file opening mode"
+```
+
+Push to GitHub:
+
+```bash
+git push
+```
+
+Finally, verify:
+
+```bash
+git status
+```
+
+Expected:
+
+```text
+nothing to commit, working tree clean
+```
+
