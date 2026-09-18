@@ -1,0 +1,78 @@
+# Problem 6
+
+Write a program to take input from STDIN and display it on STDOUT. Use only `read()` and `write()` system calls.
+
+## Program
+
+```c
+#include <unistd.h>
+
+int main() {
+    char buffer[100];
+    int n;
+
+    // Read input from STDIN
+    n = read(0, buffer, sizeof(buffer));
+
+    // Display input on STDOUT
+    write(1, buffer, n);
+
+    return 0;
+}
+```
+
+## Explanation
+
+In Linux, standard input and standard output have the following file descriptors:
+
+```text
+0 → STDIN
+1 → STDOUT
+2 → STDERR
+```
+
+The statement:
+
+```c
+n = read(0, buffer, sizeof(buffer));
+```
+
+reads data from STDIN and stores it in `buffer`.
+
+`read()` returns the number of bytes successfully read, which is stored in `n`.
+
+The statement:
+
+```c
+write(1, buffer, n);
+```
+
+writes those `n` bytes to STDOUT.
+
+Therefore, the program takes input from the keyboard and displays the same input on the terminal.
+
+## Compilation
+
+```bash
+gcc problem6.c -o problem6
+```
+
+## Execution
+
+```bash
+./problem6
+```
+
+For example:
+
+```text
+Hello Linux
+Hello Linux
+```
+
+The first line is the input entered through STDIN and the second line is the output displayed through STDOUT.
+
+## Conclusion
+
+The program uses only the `read()` and `write()` system calls to take input from STDIN and display it on STDOUT.
+
