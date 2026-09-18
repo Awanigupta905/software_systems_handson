@@ -1,0 +1,325 @@
+**Problem 13: Wait for STDIN for 10 Seconds Using select()**
+
+### Aim
+
+Write a program to wait for STDIN for 10 seconds using the `select()` system call.
+
+The program should print a proper message to verify whether data is available within 10 seconds or not.
+
+### Concept
+
+The `select()` system call is used to monitor multiple file descriptors and wait until one or more of them become ready for I/O.
+
+For this program, we monitor only **STDIN**.
+
+The file descriptor for STDIN is:
+
+```text
+0
+```
+
+The `select()` system call can wait for a specified amount of time.
+
+### Syntax
+
+```c
+select(nfds, readfds, writefds, exceptfds, timeout);
+```
+
+Important parameters:
+
+* `nfds` → highest file descriptor being monitored + 1
+* `readfds` → file descriptors to monitor for reading
+* `writefds` → file descriptors to monitor for writing
+* `exceptfds` → file descriptors to monitor for exceptional conditions
+* `timeout` → maximum time to wait
+
+### Program
+
+The program is stored in `problem13.c`.
+
+```c
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/select.h>
+
+int main() {
+    fd_set readfds;
+    struct timeval timeout;
+    int result;
+
+    // Clear the set
+    FD_ZERO(&readfds);
+
+    // Add STDIN (file descriptor 0)
+    FD_SET(STDIN_FILENO, &readfds);
+
+    // Set timeout to 10 seconds
+    timeout.tv_sec = 10;
+    timeout.tv_usec = 0;
+
+    printf("Waiting for input for 10 seconds...\n");
+
+    // Wait for STDIN to become ready
+    result = select(STDIN_FILENO + 1, &readfds, NULL, NULL, &timeout);
+
+    if (result == -1) {
+        perror("select");
+    }
+    else if (result == 0) {
+        printf("No data available within 10 seconds.\n");
+    }
+    else {
+        if (FD_ISSET(STDIN_FILENO, &readfds)) {
+            printf("Data is available within 10 seconds.\n");
+        }
+    }
+
+    return 0;
+}
+```
+
+### Explanation
+
+#### 1. Declare the file descriptor set
+
+```c
+fd_set readfds;
+```
+
+`readfds` stores the file descriptors that we want to monitor for reading.
+
+#### 2. Clear the set
+
+```c
+FD_ZERO(&readfds);
+```
+
+This initializes the set and removes all file descriptors from it.
+
+#### 3. Add STDIN
+
+```c
+FD_SET(STDIN_FILENO, &readfds);
+```
+
+This adds STDIN, file descriptor `0`, to the set.
+
+We are telling `select()`:
+
+> "Monitor STDIN and tell me when input is available."
+
+#### 4. Set the timeout
+
+```c
+timeout.tv_sec = 10;
+timeout.tv_usec = 0;
+```
+
+This sets the maximum waiting time to **10 seconds**.
+
+#### 5. Call `select()`
+
+```c
+result = select(STDIN_FILENO + 1, &readfds, NULL, NULL, &timeout);
+```
+
+Since STDIN is file descriptor `0`:
+
+```text
+STDIN_FILENO + 1
+= 0 + 1
+= 1
+```
+
+Therefore, `1` is passed as the first argument.
+
+#### 6. Check the return value
+
+If `select()` returns `-1`:
+
+```c
+if (result == -1)
+```
+
+an error occurred.
+
+If it returns `0`:
+
+```c
+else if (result == 0)
+```
+
+the 10-second timeout expired and no input was received.
+
+If it returns a positive value:
+
+```c
+else
+```
+
+at least one monitored file descriptor is ready.
+
+#### 7. Check STDIN
+
+```c
+FD_ISSET(STDIN_FILENO, &readfds)
+```
+
+checks whether STDIN is ready for reading.
+
+If it is ready, the program prints:
+
+```text
+Data is available within 10 seconds.
+```
+
+### Compilation
+
+Compile using:
+
+```bash
+gcc problem13.c -o problem13
+```
+
+### Test 1: No Input
+
+Run:
+
+```bash
+./problem13
+```
+
+Do not type anything.
+
+After 10 seconds:
+
+```text
+Waiting for input for 10 seconds...
+No data available within 10 seconds.
+```
+
+### Test 2: Input Within 10 Seconds
+
+Run:
+
+```bash
+./problem13
+```
+
+Then quickly type something, for example:
+
+```text
+Hello
+```
+
+The program will print:
+
+```text
+Waiting for input for 10 seconds...
+Data is available within 10 seconds.
+```
+
+The program only checks whether data is available; it does not actually read the input.
+
+### Return Value of select()
+
+| Return value   | Meaning                                |
+| -------------- | -------------------------------------- |
+| `-1`           | Error occurred                         |
+| `0`            | Timeout expired                        |
+| Positive value | One or more file descriptors are ready |
+
+### Important Point
+
+`select()` does **not** mean "wait exactly 10 seconds."
+
+It means:
+
+> Wait **up to 10 seconds**, or return earlier if input becomes available.
+
+For example:
+
+```text
+Start
+  |
+  |---- 3 seconds ----> User enters data
+  |
+  v
+select() returns immediately
+```
+
+It does not continue waiting for the remaining 7 seconds.
+
+If the user provides no input:
+
+```text
+Start
+  |
+  |---------- 10 seconds ----------|
+                                    |
+                                    v
+                              select() returns 0
+```
+
+### Check the Manual
+
+You can read the manual page using:
+
+```bash
+man 2 select
+```
+
+To exit the manual:
+
+```text
+q
+```
+
+### Cleanup
+
+After testing:
+
+```bash
+rm -f problem13
+```
+
+### Git Commands
+
+Add the files:
+
+```bash
+git add problem13.c problem13.txt
+```
+
+Check status:
+
+```bash
+git status
+```
+
+Commit:
+
+```bash
+git commit -m "Add select system call program"
+```
+
+Push to GitHub:
+
+```bash
+git push
+```
+
+Finally:
+
+```bash
+git status
+```
+
+Expected:
+
+```text
+nothing to commit, working tree clean
+```
+
+
