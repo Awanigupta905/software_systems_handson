@@ -1,0 +1,168 @@
+# Problem 5
+
+Write a program to create five new files with an infinite loop. Execute the program in the background and check the file descriptor table at `/proc/pid/fd`.
+
+## Program
+
+The program creates five files and keeps them open inside an infinite loop.
+
+```c
+#include <stdio.h>
+#include <fcntl.h>
+#include <unistd.h>
+
+int main() {
+    int fd[5];
+
+    // Create and open five files
+    fd[0] = open("file1.txt", O_CREAT | O_RDWR, 0644);
+    fd[1] = open("file2.txt", O_CREAT | O_RDWR, 0644);
+    fd[2] = open("file3.txt", O_CREAT | O_RDWR, 0644);
+    fd[3] = open("file4.txt", O_CREAT | O_RDWR, 0644);
+    fd[4] = open("file5.txt", O_CREAT | O_RDWR, 0644);
+
+    // Check whether files were opened successfully
+    for (int i = 0; i < 5; i++) {
+        if (fd[i] == -1) {
+            perror("open");
+            return 1;
+        }
+    }
+
+    printf("Five files created successfully.\n");
+    printf("Process ID: %d\n", getpid());
+
+    // Infinite loop
+    while (1) {
+        sleep(5);
+    }
+
+    return 0;
+}
+```
+
+Save this program as `problem5.c`.
+
+## Compilation
+
+Compile the program using:
+
+```bash
+gcc problem5.c -o problem5
+```
+
+## Execute the Program in Background
+
+Run the program in the background:
+
+```bash
+./problem5 &
+```
+
+The terminal will display something similar to:
+
+```text
+[1] 12345
+```
+
+Here, `12345` is the Process ID (PID).
+
+You can also find the PID using:
+
+```bash
+pidof problem5
+```
+
+## Check the File Descriptor Table
+
+Linux provides information about every running process inside the `/proc` filesystem.
+
+For the process with PID `12345`, check:
+
+```bash
+ls -l /proc/12345/fd
+```
+
+Replace `12345` with the actual PID of your process.
+
+You should see entries similar to:
+
+```text
+0 -> /dev/pts/0
+1 -> /dev/pts/0
+2 -> /dev/pts/0
+3 -> /home/awani/ss_new/file1.txt
+4 -> /home/awani/ss_new/file2.txt
+5 -> /home/awani/ss_new/file3.txt
+6 -> /home/awani/ss_new/file4.txt
+7 -> /home/awani/ss_new/file5.txt
+```
+
+The exact numbers and paths may vary.
+
+## Explanation
+
+File descriptors `0`, `1`, and `2` are normally:
+
+```text
+0 → Standard Input (stdin)
+1 → Standard Output (stdout)
+2 → Standard Error (stderr)
+```
+
+When the program opens the five files, Linux assigns new file descriptor numbers to them.
+
+For example:
+
+```text
+3 → file1.txt
+4 → file2.txt
+5 → file3.txt
+6 → file4.txt
+7 → file5.txt
+```
+
+The `/proc/PID/fd` directory contains symbolic links representing the file descriptors currently opened by that process.
+
+We can also inspect an individual descriptor:
+
+```bash
+ls -l /proc/12345/fd/3
+```
+
+This may show:
+
+```text
+3 -> /home/awani/ss_new/file1.txt
+```
+
+Therefore, `/proc/PID/fd` allows us to see which files and other resources are currently open by a process.
+
+## Stop the Program
+
+Since the program runs in an infinite loop, terminate it using:
+
+```bash
+kill 12345
+```
+
+Replace `12345` with the actual PID.
+
+Check that the process has stopped:
+
+```bash
+ps -p 12345
+```
+
+## Remove the Test Files
+
+After stopping the program:
+
+```bash
+rm -f file1.txt file2.txt file3.txt file4.txt file5.txt
+```
+
+## Conclusion
+
+The program creates five files and keeps their file descriptors open while running in an infinite loop. By executing the program in the background and examining `/proc/PID/fd`, we can see the file descriptor table of the process and identify the files opened by it.
+
