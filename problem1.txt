@@ -1,0 +1,213 @@
+# Problem 1
+
+Create the following types of files using:
+(i) Shell command
+(ii) System call / Library function
+
+1. Soft Link (Symbolic Link)
+2. Hard Link
+3. FIFO
+
+---
+
+## (a) Soft Link (Symbolic Link)
+
+### Using Shell Command
+
+First create an original file:
+
+```bash
+echo "This is the original file" > original.txt
+```
+
+Create a soft link:
+
+```bash
+ln -s original.txt softlink.txt
+```
+
+Check the link:
+
+```bash
+ls -l softlink.txt
+```
+
+The output will show:
+
+```text
+softlink.txt -> original.txt
+```
+
+### Using System Call
+
+The `symlink()` system call is used to create a symbolic link.
+
+```c
+symlink("original.txt", "softlink_sys.txt");
+```
+
+---
+
+## (b) Hard Link
+
+### Using Shell Command
+
+Create a hard link:
+
+```bash
+ln original.txt hardlink.txt
+```
+
+Check the inode numbers:
+
+```bash
+ls -li original.txt hardlink.txt
+```
+
+Both files will have the same inode number because they refer to the same file.
+
+### Using System Call
+
+The `link()` system call is used to create a hard link.
+
+```c
+link("original.txt", "hardlink_sys.txt");
+```
+
+---
+
+## (c) FIFO
+
+FIFO stands for First In First Out. It is a special file used for communication between processes.
+
+### Using Shell Command
+
+Create a FIFO:
+
+```bash
+mkfifo myfifo
+```
+
+Check it:
+
+```bash
+ls -l myfifo
+```
+
+The first character of the output will be `p`, indicating that it is a FIFO.
+
+### Using Library Function
+
+The `mkfifo()` library function is used to create a FIFO.
+
+```c
+mkfifo("myfifo_sys", 0666);
+```
+
+---
+
+# Combined C Program
+
+The following program demonstrates all three operations using system calls/library functions.
+
+```c
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+
+int main() {
+
+    // Create a soft link
+    if (symlink("original.txt", "softlink_sys.txt") == -1) {
+        perror("symlink");
+    } else {
+        printf("Soft link created successfully.\n");
+    }
+
+    // Create a hard link
+    if (link("original.txt", "hardlink_sys.txt") == -1) {
+        perror("link");
+    } else {
+        printf("Hard link created successfully.\n");
+    }
+
+    // Create a FIFO
+    if (mkfifo("myfifo_sys", 0666) == -1) {
+        perror("mkfifo");
+    } else {
+        printf("FIFO created successfully.\n");
+    }
+
+    return 0;
+}
+```
+
+## Compilation
+
+```bash
+gcc problem1.c -o problem1
+```
+
+## Execution
+
+Before running the program, create the original file:
+
+```bash
+echo "This is the original file" > original.txt
+```
+
+Run:
+
+```bash
+./problem1
+```
+
+Expected output:
+
+```text
+Soft link created successfully.
+Hard link created successfully.
+FIFO created successfully.
+```
+
+## Verification
+
+Check the files:
+
+```bash
+ls -l
+```
+
+Check the soft link:
+
+```bash
+ls -l softlink_sys.txt
+```
+
+Check the hard link:
+
+```bash
+ls -li original.txt hardlink_sys.txt
+```
+
+The inode numbers of `original.txt` and `hardlink_sys.txt` should be the same.
+
+Check the FIFO:
+
+```bash
+ls -l myfifo_sys
+```
+
+The first character should be `p`.
+
+## Conclusion
+
+The program demonstrates the creation of three types of files:
+
+* Soft link using `symlink()`
+* Hard link using `link()`
+* FIFO using `mkfifo()`
+
+The corresponding shell commands are `ln -s`, `ln`, and `mkfifo`.
+
