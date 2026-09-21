@@ -16,9 +16,6 @@ int main() {
     while (read(fd, &ch, 1) > 0) {
         write(STDOUT_FILENO, &ch, 1);
 
-        if (ch == '\n') {
-            // End of current line
-        }
     }
 
     close(fd);
