@@ -1,6 +1,4 @@
 #!/bin/bash
-
-echo "Script executed successfully."
-echo "Date and time: $(date)"
-echo "Process ID: $$"
+# myscript.sh
+echo "Script ran at $(date)" >> /tmp/myscript_output.txt
 
