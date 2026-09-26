@@ -2,23 +2,45 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <sys/stat.h>
 
-#define BUF_SIZE 256
+int main() {
+    int fd;
+    struct flock lock;
 
-int main(int argc, char *argv[]) {
-   int fd = open("lab16.txt", O_RDWR | O_CREAT, 0644);
+    fd = open("lab16.txt", O_RDWR | O_CREAT, 0660);
 
-   struct flock lock;
-   lock.l_type = F_WRLCK;
-   lock.l_whence = SEEK_SET;
-   lock.l_start = 0;
-   lock.l_len = 0;
+    if (fd == -1) {
+        perror("open");
+        return 1;
+    }
 
-   fcntl(fd, F_SETLK, &lock);
-   printf("Write lock acquired, sleeping 15s \n");
-   sleep(15);
+    if (fchmod(fd, 02660) == -1) {
+        perror("fchmod");
+        close(fd);
+        return 1;
+    }
 
-   close(fd);
-   return 0;
+    lock.l_type = F_WRLCK;
+    lock.l_whence = SEEK_SET;
+    lock.l_start = 0;
+    lock.l_len = 0;      
+
+    if (fcntl(fd, F_SETLK, &lock) == -1) {
+        perror("fcntl");
+        close(fd);
+        return 1;
+    }
+
+    printf("Mandatory write lock acquired.\n");
+    printf("Sleeping for 15 seconds...\n");
+
+    sleep(15);
+
+    close(fd);
+
+    printf("Write lock released.\n");
+
+    return 0;
 }
 
